@@ -1,3 +1,6 @@
+module Operators
+(Term(Var), true, false, neg, (\/), (/\), (==>), (<==>), (!<==>), (===)) where
+
 -- Definición de tipo para los términos.
 data Term = TrueTerm
           | FalseTerm
