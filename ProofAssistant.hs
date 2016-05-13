@@ -19,6 +19,7 @@ instance (IsTerm t1, IsTerm t2) => SimpleSust (t1, t2) where
     getTerms (t1, t2) = (getTerm t1, getTerm t2)
 
 class Sust s where
+    showS :: s -> String
     sustVar :: Term -> s -> Term
     sust :: Term -> s -> Term
     sust TrueTerm _ = TrueTerm
@@ -31,6 +32,8 @@ instance (IsTerm t1, IsTerm t2) => Sust (t1, t2) where
     sustVar t (t1, t2) = substitute t (getTerm t1, getTerm t2)
         where substitute (Var i) (t, Var j) = if i == j then t else (Var i)
               substitute t s = error "No se puede sustituir"
+    
+    showS (t1, t2) = show (getTerm t1) ++ " =: " ++ show (getTerm t2)
 
 instance (IsTerm t1, SimpleSust s, IsTerm t2) => Sust (t1, s, t2) where
     sustVar t (t1, s, t2) = substitute t (x1, x2, x3, x4)
@@ -41,6 +44,10 @@ instance (IsTerm t1, SimpleSust s, IsTerm t2) => Sust (t1, s, t2) where
                 | i == k = t2
                 | otherwise = Var i
               substitute t s = error "No se puede sustituir"
+              
+    showS (t1, s, t2) = "(" ++ term1 ++ ", " ++ showS (getTerms s) ++ ", " ++ term2 ++ ")"
+        where term1 = show (getTerm t1)
+              term2 = show (getTerm t2)
 
 instance (IsTerm t1, IsTerm t2, SimpleSust s, IsTerm t3, IsTerm t4) => Sust (t1, t2, s, t3, t4) where
     sustVar t (t1, t2, s, t3, t4) = substitute t (x1, x2, x3, x4, x5 ,x6)
@@ -52,11 +59,12 @@ instance (IsTerm t1, IsTerm t2, SimpleSust s, IsTerm t3, IsTerm t4) => Sust (t1,
                 | i == h = t3
                 | otherwise = Var i
               substitute t s = error "No se puede sustituir"
-
-instantiate :: (Sust s) => Equation -> s -> Equation
-instantiate (Equiv t1 t2) s = (sust t1 s) === (sust t2 s)
-
-liebniz :: Equation -> Term -> Term -> Equation
-liebniz (Equiv t1 t2) t (Var z) = (sust t (t1 =: (Var z))) === (sust t (t2 =: (Var z)))
-
+    
+    showS (t1, t2, s, t3, t4) = "(" ++ firstTwo ++ ", " ++ showS (getTerms s) ++ ", " ++ lastTwo ++ ")"
+        where term1 = show (getTerm t1)
+              term2 = show (getTerm t2)
+              term3 = show (getTerm t3)
+              term4 = show (getTerm t4)
+              firstTwo = term1 ++ ", " ++ term2
+              lastTwo = term3 ++ ", " ++ term4
 

@@ -6,8 +6,9 @@ data Term = TrueTerm
           | Var Char
           | Not Term
           | BinOp BinaryOperator Term Term
+          deriving (Eq)
 
-data BinaryOperator = Or | And | Imply | Equal | Unequal
+data BinaryOperator = Or | And | Imply | Equal | Unequal deriving (Eq)
 
 -- Tipo para las ecuaciones.
 data Equation = Equiv Term Term
