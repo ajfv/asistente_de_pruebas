@@ -17,20 +17,29 @@ step :: (Sust s) => Term -> Float -> s -> Term -> Term -> Term
 step term num sus var exp
     | term == i1 = i2
     | term == i2 = i1
-    | otherwise = error $ "Error al inferir: (" ++ show term ++ ") no es igual a ningún lado de " ++ show (Equiv i1 i2)
+    | otherwise = error mensaje_error
     where (Equiv i1 i2) = infer num sus var exp
-           
-
+          mensaje_error = mensajeIni ++ mensajeFin
+          mensajeIni = "Error al inferir: (" ++ show term
+          mensajeFin = ") no es igual a ningún lado de " ++ show (Equiv i1 i2)
+     
+-- Constantes auxiliares para la llamada a la funcion statement    
 with = ()
 using = ()
 lambda = ()
+
 statement :: (Sust s) => Float -> () -> s -> () -> () -> Term -> Term -> Term -> IO Term
 statement num _ sus _ _ var exp term = do
     let newTerm = step term num sus var exp
-    putStrLn $ "=== <statement " ++ show num ++ " with "++ showS sus ++ " using lambda " ++ show var ++ "." ++ show exp
+    putStrLn $ statement
     putStrLn $ show newTerm
     return newTerm
-    
+    where statement = teorema ++ sustitucion ++ lambda
+          teorema = "=== <statement " ++ show num
+          sustitucion = " with "++ showS sus
+          lambda = " using lambda " ++ show var ++ "." ++ show exp
+   
+-- Funciones para el inicio y el fin de una demostracion 
 proof :: Equation -> IO Term
 proof (Equiv t1 t2) = do
     putStrLn $ show t1
