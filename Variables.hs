@@ -1,3 +1,12 @@
+{- 
+Módulo      : Variables
+Descripción : Variables para cada letra minúscula
+Autores     : Alfredo Fanghella, 12-10967
+              Ricardo Mena, 12-10872
+
+Este módulo define una variable por cada letra minúscula del abecedario
+(sin ñ) para la comodidad del usuario.
+-}
 module Variables where
 
 import Operators (Term(Var))
