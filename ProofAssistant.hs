@@ -28,6 +28,8 @@ class Sust s where
     sust (BinOp op t1 t2) s = BinOp op (sust t1 s) (sust t2 s)
     sust (Var i) s = sustVar (Var i) s
 
+
+-- Instancia para la sustitucion simple
 instance (IsTerm t1, IsTerm t2) => Sust (t1, t2) where 
     sustVar t (t1, t2) = substitute t (getTerm t1, getTerm t2)
         where substitute (Var i) (t, Var j) = if i == j then t else (Var i)
@@ -35,6 +37,8 @@ instance (IsTerm t1, IsTerm t2) => Sust (t1, t2) where
     
     showS (t1, t2) = show (getTerm t1) ++ " =: " ++ show (getTerm t2)
 
+
+-- Instancia para la sustitucion doble
 instance (IsTerm t1, SimpleSust s, IsTerm t2) => Sust (t1, s, t2) where
     sustVar t (t1, s, t2) = substitute t (x1, x2, x3, x4)
         where (x1, (x2, x3), x4) = (getTerm t1, getTerms s, getTerm t2) 
@@ -45,10 +49,18 @@ instance (IsTerm t1, SimpleSust s, IsTerm t2) => Sust (t1, s, t2) where
                 | otherwise = Var i
               substitute t s = error "No se puede sustituir"
               
-    showS (t1, s, t2) = "(" ++ term1 ++ ", " ++ showS (getTerms s) ++ ", " ++ term2 ++ ")"
+    showS (t1, s, t2) = sustitucion
         where term1 = show (getTerm t1)
               term2 = show (getTerm t2)
-
+              sustIni = "(" ++ term1 ++ ", " ++ showS (getTerms s)
+              sustFin = ", " ++ term2 ++ ")"
+              sustitucion = sustIni ++ sustFin
+              
+--        where sustIni = "(" ++ show (getTerm t1) ++ ", " ++ showS (getTerms s)
+--              sustFin = ", " ++ show (getTerm t2) ++ ")"
+--              sustitucion = sustIni ++ sustFin              
+              
+-- Instancia para la sustitucion triple             
 instance (IsTerm t1, IsTerm t2, SimpleSust s, IsTerm t3, IsTerm t4) => Sust (t1, t2, s, t3, t4) where
     sustVar t (t1, t2, s, t3, t4) = substitute t (x1, x2, x3, x4, x5 ,x6)
         where (x1, x2, (x3, x4), x5, x6) = (getTerm t1, getTerm t2, getTerms s, getTerm t3, getTerm t4)
@@ -60,11 +72,14 @@ instance (IsTerm t1, IsTerm t2, SimpleSust s, IsTerm t3, IsTerm t4) => Sust (t1,
                 | otherwise = Var i
               substitute t s = error "No se puede sustituir"
     
-    showS (t1, t2, s, t3, t4) = "(" ++ firstTwo ++ ", " ++ showS (getTerms s) ++ ", " ++ lastTwo ++ ")"
+    showS (t1, t2, s, t3, t4) =  sustitucion
         where term1 = show (getTerm t1)
               term2 = show (getTerm t2)
               term3 = show (getTerm t3)
               term4 = show (getTerm t4)
               firstTwo = term1 ++ ", " ++ term2
               lastTwo = term3 ++ ", " ++ term4
+              sustIni = "(" ++ firstTwo ++ ", " ++ showS (getTerms s)
+              sustFin = ", " ++ lastTwo ++ ")"
+              sustitucion = sustIni ++ sustFin
 
