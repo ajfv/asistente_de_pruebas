@@ -7,7 +7,6 @@ Autores     : Alfredo Fanghella, 12-10967
 Tipos para representar las expresiones booleanas, y operadores para crearlos
 con sintaxis parecida a la usada a mano. También se implementa el código para
 obtener su representación como String.
-
 -}
 module Operators where
 

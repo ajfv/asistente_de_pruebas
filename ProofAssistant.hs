@@ -1,85 +1,66 @@
-module ProofAssistant where
+{-
+Módulo      : ProofAssitant
+Descripción : Asistente de pruebas de lógica proposicional
+Autores     : Alfredo Fanghella, 12-10967
+              Ricardo Mena, 12-10872
+
+Este módulo implementa las funciones que son visibles para el usuario y 
+muestran sálida. Además exporta los operadores y las variables. Para verificar
+una prueba, el usuario solo debe importar este módulo.
+-}
+module ProofAssistant 
+( module ProofAssistant
+, module Variables
+, false, true, neg, (/\), (\/), (==>), (<==>), (!<==>), (===)
+) where
 
 import Operators
+import Variables
+import Inference
+import Theorems
 
+-- Operador para definir una sustitución.
 infix 1 =:
 (=:) :: Term -> Term -> (Term, Term)
 t1 =: t2 = (t1, t2)
 
-class IsTerm t where
-    getTerm :: t -> Term
+-- Constantes auxiliares para que la función statement luzca similar
+-- a como se vería si la prueba se hiciera a mano. 
+with = ()
+using = ()
+lambda = ()
 
-instance IsTerm Term where
-    getTerm = id
+-- Esta función ejecuta un paso de la demostración, mostrando la inferencia
+-- realizada por la salida estándar.
+-- Recibe un número de teorma, la sustitución con la que se instanciará, la
+-- variable y la función con que se aplicará la regla de Liebniz y
+-- el término actual de la demostración. Si el paso es correcto, devuelve el 
+-- siguiente término.
+statement :: (Sust s) => Float -> () -> s -> () -> () -> Term -> Term -> Term -> IO Term
+statement num _ sus _ _ var exp term = do
+    let newTerm = step term num sus var exp
+    putStrLn $ statement
+    putStrLn $ show newTerm
+    return newTerm
+    where statement = teorema ++ sustitucion ++ lambda
+          teorema = "=== <statement " ++ show num
+          sustitucion = " with "++ showS sus
+          lambda = " using lambda " ++ show var ++ "." ++ show exp
+   
+-- Función para iniciar una demostración.
+proof :: Equation -> IO Term
+proof (Equiv t1 t2) = do
+    putStrLn $ show t1
+    return t1
 
-class SimpleSust s where
-    getTerms :: s -> (Term, Term)
-
-instance (IsTerm t1, IsTerm t2) => SimpleSust (t1, t2) where
-    getTerms (t1, t2) = (getTerm t1, getTerm t2)
-
-class Sust s where
-    showS :: s -> String
-    sustVar :: Term -> s -> Term
-    sust :: Term -> s -> Term
-    sust TrueTerm _ = TrueTerm
-    sust FalseTerm _ = FalseTerm
-    sust (Not t) s = Not (sust t s)
-    sust (BinOp op t1 t2) s = BinOp op (sust t1 s) (sust t2 s)
-    sust (Var i) s = sustVar (Var i) s
-
-
--- Instancia para la sustitucion simple
-instance (IsTerm t1, IsTerm t2) => Sust (t1, t2) where 
-    sustVar t (t1, t2) = substitute t (getTerm t1, getTerm t2)
-        where substitute (Var i) (t, Var j) = if i == j then t else (Var i)
-              substitute t s = error "No se puede sustituir"
+-- Función para terminar una demostración. Chequea que se haya llegado a la
+-- expresión deseada.
+done :: Equation -> Term -> IO()
+done (Equiv t2 t3) t1 = do
+    if t1 == t3
+      then
+      putStrLn $ "La demostracion del teorema fue exitosa"
+    else
+      putStrLn $ "La demostracion del teorema no esta correcta"
     
-    showS (t1, t2) = show (getTerm t1) ++ " =: " ++ show (getTerm t2)
-
-
--- Instancia para la sustitucion doble
-instance (IsTerm t1, SimpleSust s, IsTerm t2) => Sust (t1, s, t2) where
-    sustVar t (t1, s, t2) = substitute t (x1, x2, x3, x4)
-        where (x1, (x2, x3), x4) = (getTerm t1, getTerms s, getTerm t2) 
-              substitute (Var i) (t1, t2, Var j, Var k)
-                | k == j = error "No se puede sustituir"
-                | i == j = t1
-                | i == k = t2
-                | otherwise = Var i
-              substitute t s = error "No se puede sustituir"
-              
-    showS (t1, s, t2) = sustitucion
-        where term1 = show (getTerm t1)
-              term2 = show (getTerm t2)
-              sustIni = "(" ++ term1 ++ ", " ++ showS (getTerms s)
-              sustFin = ", " ++ term2 ++ ")"
-              sustitucion = sustIni ++ sustFin
-              
---        where sustIni = "(" ++ show (getTerm t1) ++ ", " ++ showS (getTerms s)
---              sustFin = ", " ++ show (getTerm t2) ++ ")"
---              sustitucion = sustIni ++ sustFin              
-              
--- Instancia para la sustitucion triple             
-instance (IsTerm t1, IsTerm t2, SimpleSust s, IsTerm t3, IsTerm t4) => Sust (t1, t2, s, t3, t4) where
-    sustVar t (t1, t2, s, t3, t4) = substitute t (x1, x2, x3, x4, x5 ,x6)
-        where (x1, x2, (x3, x4), x5, x6) = (getTerm t1, getTerm t2, getTerms s, getTerm t3, getTerm t4)
-              substitute (Var i) (t1, t2, t3, Var j, Var k, Var h)
-                | j == k || j == h || k == h = error "No se puede sustituir"
-                | i == j = t1
-                | i == k = t2
-                | i == h = t3
-                | otherwise = Var i
-              substitute t s = error "No se puede sustituir"
-    
-    showS (t1, t2, s, t3, t4) =  sustitucion
-        where term1 = show (getTerm t1)
-              term2 = show (getTerm t2)
-              term3 = show (getTerm t3)
-              term4 = show (getTerm t4)
-              firstTwo = term1 ++ ", " ++ term2
-              lastTwo = term3 ++ ", " ++ term4
-              sustIni = "(" ++ firstTwo ++ ", " ++ showS (getTerms s)
-              sustFin = ", " ++ lastTwo ++ ")"
-              sustitucion = sustIni ++ sustFin
 

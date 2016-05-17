@@ -1,8 +1,4 @@
-import Variables
-import Operators
-import Funciones
 import ProofAssistant
-
 
 verify = let theorem = p === (q <==> q) <==> p in
          proof theorem
