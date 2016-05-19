@@ -1,0 +1,8 @@
+#!/bin/bash
+# Script para verificar una prueba
+# Autores: Alfredo Fanghella, 12-10967. Ricardo Mena, 12-10872
+if [ $# -eq 0 ]; then
+    echo "Debe pasar el archivo con la prueba."
+else
+    echo "verify" | ghci $1
+fi

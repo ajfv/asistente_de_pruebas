@@ -50,8 +50,6 @@ statement num _ sus _ _ var exp term = do
 -- Función para iniciar una demostración.
 proof :: Equation -> IO Term
 proof (Equiv t1 t2) = do
-    putStrLn $ "Probando " ++ (show $ Equiv t1 t2)
-    putStrLn ""
     putStrLn $ show t1
     return t1
 

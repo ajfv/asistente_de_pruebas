@@ -24,4 +24,17 @@ prop num
   | num == 3.17 = (p !<==> q) !<==> r === p !<==> (q !<==> r) -- theorem
   | num == 3.18 = (p !<==> q) <==> r === p !<==> (q <==> r)   -- theorem
   | num == 3.19 = (p !<==> q) <==> r === p <==> (q !<==> r)   -- theorem
+  | num == 3.201 = neg p <==> q === p <==> neg q              -- theorem
+  | num == 3.21 = q === (p !<==> q) <==> neg p                -- theorem
+  | num == 3.22 = neg p === p <==> false                      -- theorem
+  | num == 3.23 = p !<==> q === r <==> (p <==> (q !<==> r))   -- theorem
+  | num == 3.24 = p \/ q === q \/ p                           -- axiom
+  | num == 3.25 = (p \/ q) \/ r === p \/ (q \/ r)             -- axiom
+  | num == 3.26 = p \/ p === p                                -- axiom
+  | num == 3.27 = p \/ (q <==> r) === p \/ q <==> p \/ r      -- axiom
+  | num == 3.28 = p \/ neg p === true                         -- axiom
+  | num == 3.29 = p \/ true === true                          -- theorem
+  | num == 3.301 = p \/ false === p                           -- theorem
+  | num == 3.31 = p \/ (q \/ r) === (p \/ q) \/ (p \/ r)      -- theorem
+  | num == 3.32 = p \/ q === p \/ neg q <==> p                -- theorem
   | otherwise = error "The statement doesn't exists"
